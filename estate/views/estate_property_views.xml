@@ -1,0 +1,121 @@
+<?xml version="1.0"?>
+<odoo>
+
+
+    <!-- Search-->
+    <record id="estate_property_view_search" model="ir.ui.view">
+        <field name="name">estate_property.search</field>
+        <field name="model">estate.property</field>
+        <field name="arch" type="xml">
+            <search string="Properties">
+                <field name="name" string="Name" />
+                <field name="postcode" string="Postcode" />
+                <field name="expected_price" string="Expected Price" />
+                <field name="bedrooms" string="Bedrooms" />
+                <field name="living_area" string="Living Area" filter_domain="['|',('living_area', '>=', 'self')]" />
+                <field name="facades" string="Facades" />
+                <filter string="Available" name="available" domain="[('state', '=', 'new'), ('state', '=', 'received')]"/>
+                <filter string="Unavailable" name="unavailable" domain="['|', ('active', '=', False), ('active', '=', False)]"/>
+                <separator/>
+                <group expand="1" string="Group By">
+                    <filter string="PostCode" name="group_postcode" context="{'group_by': 'postcode'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!--Form-->
+    <record id="estate_property_form_view" model="ir.ui.view">
+        <field name="name">estate.property.form</field>
+        <field name="model">estate.property</field>
+        <field name="arch" type="xml">
+            <form string="Test">
+                <header>
+                    <button name="action_mark_sold" type="object" string="SOLD" class="text-success" invisible="state=='sold'"/>
+                    <button name="action_mark_cancelled" type="object" string="CANCEL" class="text-success" invisible="state=='sold'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="new,received,accepted,sold"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1 class="oe_mb4">
+                            <field name="name" />
+                        </h1>
+                    </div>
+                    <group class="mb32">
+                        <field string="Tags" name="tag_ids" widget="many2many_tags"/>
+                    </group>
+                    <group class="mb16">
+                        <group>
+                            <field name="state" class="text-success"/>
+                            <field name="property_type_id" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="postcode"/>
+                            <field name="active"/>
+                            <field name="date_availability"/>
+                        </group>
+                        <group>
+                            <field name="expected_price" />
+                            <field name="best_price" />
+                            <field name="selling_price" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Description">
+                            <group>
+                                <field name="description"/>
+                                <field name="bedrooms"/>
+                                <field name="living_area"/>
+                                <field name="facades"/>
+                                <field name="garage"/>
+                                <field name="garden"/>
+                                <field name="garden_area" invisible="not garden"/>
+                                <field name="property_type_id" options="{'no_create': True, 'no_open': True}" />
+                                <field name="garden_orientation" invisible="not garden"/>
+                                <field name="total_area"/>
+                            </group>
+                        </page>
+                        <page string="Offers">
+                            <field name="offer_ids" readonly="state in ['accepted', 'sold', 'cancelled']"/>
+                        </page>
+                        <page string="Other Info">
+                            <group>
+                                <field name="buyer" class="text-success" />
+                                <field name="salesperson" class="text-success" />
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+</form>
+        </field>
+    </record>
+
+    <!--List-->
+    <record id="estate_property_list_view" model="ir.ui.view">
+        <field name="name">estate.property.list</field>
+        <field name="model">estate.property</field>
+        <field name="arch" type="xml">
+            <list decoration-success="offer_ids and state not in ['sold','cancelled']" decoration-bf="state=='accepted'" decoration-muted="state=='sold'">
+                <field name="name"/>
+                <field name="postcode"/>
+                <field name="bedrooms"/>
+                <field name="living_area"/>
+                <field name="expected_price"/>
+                <field name="selling_price"/>
+                <field name="date_availability" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!--Action-->
+    <record id="estate_property_action" model="ir.actions.act_window">
+       <field name="name">Property</field>
+        <field name="res_model">estate.property</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_available':True}</field>
+        <field name="search_view_id" ref="estate_property_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                You have no property to advertise Here!!!
+            </p>
+        </field>
+    </record>
+</odoo>
